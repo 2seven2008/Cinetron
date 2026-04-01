@@ -1,45 +1,56 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Search, Trash2 } from 'lucide-react'
-import { watchlistService } from '../services/watchlist'
-import { useAuth } from '../context/AuthContext'
-import { showToast, SkeletonGrid } from '../components/UI'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Trash2 } from "lucide-react";
+import { watchlistService } from "../services/watchlist";
+import { useAuth } from "../context/AuthContext";
+import { showToast, SkeletonGrid } from "../components/UI";
 
 export default function MinhaLista() {
-  const nav = useNavigate()
-  const { user } = useAuth()
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('todos')
-  const [search, setSearch] = useState('')
+  const nav = useNavigate();
+  const { user } = useAuth();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("todos");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!user) { nav('/login'); return }
-    load()
-  }, [user])
+    if (!user) {
+      nav("/login");
+      return;
+    }
+    load();
+  }, [user]);
 
   const load = async () => {
     try {
-      const data = await watchlistService.getAll()
-      setItems(data)
-    } catch { showToast('Erro ao carregar lista', 'error') }
-    finally { setLoading(false) }
-  }
+      const data = await watchlistService.getAll();
+      setItems(data);
+    } catch {
+      showToast("Erro ao carregar lista", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const remove = async (tmdbId, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
-      await watchlistService.remove(tmdbId)
-      setItems(prev => prev.filter(i => i.tmdbId !== tmdbId))
-      showToast('Removido da lista', 'info')
-    } catch { showToast('Erro ao remover', 'error') }
-  }
+      await watchlistService.remove(tmdbId);
+      setItems((prev) => prev.filter((i) => i.tmdbId !== tmdbId));
+      showToast("Removido da lista", "info");
+    } catch {
+      showToast("Erro ao remover", "error");
+    }
+  };
 
-  const filtered = items.filter(i => {
-    const matchFilter = filter === 'todos' || i.mediaType === (filter === 'filmes' ? 'movie' : 'tv')
-    const matchSearch = !search || i.title.toLowerCase().includes(search.toLowerCase())
-    return matchFilter && matchSearch
-  })
+  const filtered = items.filter((i) => {
+    const matchFilter =
+      filter === "todos" ||
+      i.mediaType === (filter === "filmes" ? "movie" : "tv");
+    const matchSearch =
+      !search || i.title.toLowerCase().includes(search.toLowerCase());
+    return matchFilter && matchSearch;
+  });
 
   return (
     <div className="page fade-up">
@@ -49,9 +60,13 @@ export default function MinhaLista() {
       </div>
 
       <div className="filter-tabs">
-        {['todos', 'filmes', 'series'].map(f => (
-          <button key={f} className={`filter-tab ${filter === f ? 'filter-tab--active' : ''}`} onClick={() => setFilter(f)}>
-            {f === 'todos' ? '≡ Todos' : f === 'filmes' ? 'Filmes' : 'Séries'}
+        {["todos", "filmes", "series"].map((f) => (
+          <button
+            key={f}
+            className={`filter-tab ${filter === f ? "filter-tab--active" : ""}`}
+            onClick={() => setFilter(f)}
+          >
+            {f === "todos" ? "≡ Todos" : f === "filmes" ? "Filmes" : "Séries"}
           </button>
         ))}
       </div>
@@ -60,7 +75,7 @@ export default function MinhaLista() {
         <Search size={16} className="search-icon" />
         <input
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar em Minha Lista"
         />
       </div>
@@ -72,7 +87,11 @@ export default function MinhaLista() {
           <span className="empty-icon">🎬</span>
           <h3>Sua lista está vazia</h3>
           <p>Adicione filmes e séries para assistir depois</p>
-          <button className="btn-primary" style={{ marginTop: 16 }} onClick={() => nav('/buscar')}>
+          <button
+            className="btn-primary"
+            style={{ marginTop: 16 }}
+            onClick={() => nav("/buscar")}
+          >
             Explorar conteúdo
           </button>
         </div>
@@ -80,27 +99,43 @@ export default function MinhaLista() {
 
       {!loading && (
         <div className="grid-2">
-          {filtered.map(item => (
+          {filtered.map((item) => (
             <div
               key={item._id}
               className="list-card"
-              onClick={() => nav(`/${item.mediaType === 'tv' ? 'serie' : 'filme'}/${item.tmdbId}`)}
+              onClick={() =>
+                nav(
+                  `/${item.mediaType === "tv" ? "serie" : "filme"}/${item.tmdbId}`,
+                )
+              }
             >
               <div className="list-card__img">
-                {item.posterPath
-                  ? <img src={`https://image.tmdb.org/t/p/w342${item.posterPath}`} alt={item.title} loading="lazy" />
-                  : <div className="list-card__placeholder">{item.title.charAt(0)}</div>
-                }
-                <button className="list-card__remove" onClick={e => remove(item.tmdbId, e)}>
+                {item.posterPath ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w342${item.posterPath}`}
+                    alt={item.title}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="list-card__placeholder">
+                    {item.title.charAt(0)}
+                  </div>
+                )}
+                <button
+                  className="list-card__remove"
+                  onClick={(e) => remove(item.tmdbId, e)}
+                >
                   <Trash2 size={14} />
                 </button>
               </div>
               <p className="list-card__title">{item.title}</p>
-              <p className="list-card__type">{item.mediaType === 'tv' ? 'Série' : 'Filme'}</p>
+              <p className="list-card__type">
+                {item.mediaType === "tv" ? "Série" : "Filme"}
+              </p>
             </div>
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
