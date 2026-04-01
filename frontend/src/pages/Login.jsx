@@ -28,7 +28,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page fade-up" style={{ margin: "0 auto" }}>
+    <div className="auth-page fade-up">
       <div className="auth-logo">CINETRON</div>
       <h1 className="auth-title">Bem-vindo!</h1>
       <p className="auth-subtitle">Entre para assistir.</p>

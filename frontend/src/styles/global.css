@@ -112,3 +112,11 @@ button { font-family: 'Outfit', sans-serif; cursor: pointer; }
   scrollbar-width: none;
 }
 .scroll-row::-webkit-scrollbar { display: none; }
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100%;
+}
